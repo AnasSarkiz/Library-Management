@@ -22,14 +22,14 @@ public class Main {
 
     private static void execute(String command) {
         String[] args = command.trim().split(" ");
-
+    
         if (args.length == 0 || args[0].isEmpty()) {
-            System.out.println("Please provide a valid command. Type 'help' for a list of commands.");
+            System.out.println("Error: No command entered. Please provide a valid command. Type 'help' for a list of commands.");
             return;
         }
-
+    
         String mainCommand = args[0].toLowerCase();
-
+    
         switch (mainCommand) {
             case "help":
                 displayHelp(args);
@@ -59,10 +59,10 @@ public class Main {
                 handleReturnCommand(args);
                 break;
             default:
-                System.out.println("Invalid command. Type 'help' for a list of valid commands.");
+                System.out.println("Error: Invalid command '" + mainCommand + "'. Type 'help' for a list of valid commands.");
         }
     }
-
+    
     private static void displayHelp(String[] args) {
         if (args.length == 1) {
             System.out.println("Available commands:");
@@ -86,7 +86,10 @@ public class Main {
                     System.out.println("To find a book, enter 'find by <title>, <author>, <category> or <email>'.");
                     break;
                 case "print":
-                    System.out.println("To print all books, enter 'print'.");
+                case "list":
+                case "display":
+                case "printall":
+                    System.out.println("To print all books.");
                     break;
                 case "borrow":
                     System.out.println("To borrow a book, enter 'borrow <title>'.");
@@ -105,29 +108,46 @@ public class Main {
     }
 
     private static void handleAddCommand(String[] args) {
-        if (args.length != 6) {
+        String title = null;
+        String author = null;
+        String category = null;
+        String email = null;
+        String quantity = null;
+
+        if (args.length == 6) {
+
+            title = args[1];
+            author = args[2];
+            category = args[3];
+            email = args[4];
+            quantity = args[5];
+        } else if (args.length == 1 && args[0].equals("add")) {
+            Scanner scanner = new Scanner(System.in);
+            System.out.println("Enter title of the book:");
+            title = scanner.nextLine();
+            System.out.println("Enter author of the book:");
+            author = scanner.nextLine();
+            System.out.println("Enter category of the book:");
+            category = scanner.nextLine();
+            System.out.println("Enter email of the book:");
+            email = scanner.nextLine();
+            System.out.println("Enter quantity of the book:");
+            quantity = scanner.nextLine();
+        } else {
             System.out.println("Invalid 'add' command format. Use: 'add <title> <author> <category> <email> <quantity>'.");
             return;
         }
-    
-        String title = args[1];
-        String author = args[2];
-        String category = args[3];
-        String email = args[4];
-        String quantity = args[5];
-    
-        // Validate quantity is numeric
         if (!isNumeric(quantity)) {
-            System.out.println("Invalid quantity type. Expected a number. Use: 'add <title> <author> <category> <email> <quantity>'.");
+            System.out.println("Invalid quantity. Expected a numeric value.");
             return;
         }
-    
+
         int qnt = Integer.parseInt(quantity);
         if (qnt <= 0) {
-            System.out.println("Invalid quantity value. Quantity should be a positive number.");
+            System.out.println("Invalid quantity. Quantity must be a positive number.");
             return;
         }
-    
+
         Book book = new Book(title, author, category, email, qnt);
         library.addBook(book);
         System.out.println("Book added successfully: " + book.getInfo());
@@ -172,7 +192,7 @@ public class Main {
 
     private static void handleFindCommand(String[] args) {
         if (args.length < 3) {
-            System.out.println("Invalid 'find' command format. Use: 'find by <title/author/category/email>'.");
+            System.out.println("Invalid 'find' command format. Use: 'find  <title/author/category/email> string'.");
             return;
         }
         String filter = args[1].toLowerCase();
@@ -192,7 +212,7 @@ public class Main {
                 foundBooks = library.findBookByEmail(query);
                 break;
             default:
-                System.out.println("Invalid find filter. Use: 'find by <title/author/category/email>'.");
+                System.out.println("Error you must enter the title, author, category or email of the book that you want to find.");
                 return;
         }
         if (foundBooks.isEmpty()) {
@@ -207,7 +227,7 @@ public class Main {
 
     private static void handleBorrowCommand(String[] args) {
         if (args.length != 2) {
-            System.out.println("Invalid 'borrow' command format. Use: 'borrow <title>'.");
+            System.out.println("Error you must enter the title of the book that you want to borrow.");
             return;
         }
         String title = args[1];
@@ -267,10 +287,9 @@ public class Main {
         System.out.println("Enter the number of the book you want to return:");
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
-        if (!isNumeric(input)) {
-            System.out.println("Invalid input. Please enter a valid number.");
+        if (!isNumeric(input)) 
             return;
-        }
+
         int choice = Integer.parseInt(input);
     
         if (choice < 1 || choice > books.size()) {
@@ -285,6 +304,10 @@ public class Main {
         }
     }
     private static boolean isNumeric(String str) {
-        return str.matches("\\d+");
+        if (!str.matches("\\d+")) {
+            System.out.println("Error: '" + str + "' is not a valid numeric value. Please enter numbers only.");
+            return false;
+        }
+        return true;
     }
 }
