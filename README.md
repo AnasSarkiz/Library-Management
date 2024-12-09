@@ -82,24 +82,24 @@ To use the Library Management System:
 ### Use Case Diagram
 ```
                     Library Management System
-                            ┌──────┐
-                            │ User │
-                            └──┬───┘
-                               │
+                           ┌──────┐
+                           │ User │
+                           └──┬───┘
+                              │
            ┌──────────────────┼──────────────────┐
+           │                  │                  │
+     ┌─────▼─────-┐     ┌─────▼─────┐      ┌─────▼─────┐
+     │  Manage    │     │   Search  │      │  Borrow/  │
+     │   Books    │     │   Books   │      │  Return   │
+     └─────┬─────-┘     └─────┬─────┘      └─────-┬────┘
            │                  │                   │
-     ┌─────▼─────┐     ┌─────▼─────┐      ┌─────▼─────┐
-     │  Manage    │     │   Search   │      │  Borrow/   │
-     │   Books    │     │   Books    │      │  Return    │
-     └─────┬─────┘     └─────┬─────┘      └─────┬─────┘
-           │                  │                   │
-     ┌─────▼─────┐     ┌─────▼─────┐      ┌─────▼─────┐
-     │ Add Book   │     │Find by    │      │ Borrow    │
-     │ Remove Book│     │-Title     │      │ Return    │
-     └───────────┘     │-Author    │      └───────────┘
-                       │-Category  │
-                       │-Email     │
-                       └───────────┘
+     ┌─────▼─────-┐     ┌─────▼─────┐       ┌─────▼─────┐
+     │ Add Book   │     │Find by    │       │ Borrow    │
+     │ Remove Book│     │-Title     │       │ Return    │
+     └───────────-┘     │-Author    │       └───────────┘
+                        │-Category  │
+                        │-Email     │
+                        └──────────-┘
 ```
 
 ### Class Diagram
@@ -115,7 +115,7 @@ To use the Library Management System:
 │ +borrowBook() │         ├───────────────┤
 │ +returnBook() │         │ +getters()    │
 └───────────────┘         │ +setters()    │
-                         └───────────────┘
+                          └───────────────┘
 ```
 
 ## Error Handling
