@@ -24,7 +24,7 @@ public class Main {
         String[] args = command.trim().split(" ");
     
         if (args.length == 0 || args[0].isEmpty()) {
-            System.out.println("Error: No command entered. Please provide a valid command. Type 'help' for a list of commands.");
+            System.out.println("ERROR: No command entered. Please type a valid command. Use 'help' to see all available commands.");
             return;
         }
     
@@ -59,7 +59,7 @@ public class Main {
                 handleReturnCommand(args);
                 break;
             default:
-                System.out.println("Error: Invalid command '" + mainCommand + "'. Type 'help' for a list of valid commands.");
+                System.out.println("ERROR: Unknown command '" + mainCommand + "'. Use 'help' to see all available commands.");
         }
     }
     
@@ -134,17 +134,16 @@ public class Main {
             System.out.println("Enter quantity of the book:");
             quantity = scanner.nextLine();
         } else {
-            System.out.println("Invalid 'add' command format. Use: 'add <title> <author> <category> <email> <quantity>'.");
+            System.out.println("ERROR: Invalid 'add' command format.\nCorrect usage: 'add <title> <author> <category> <email> <quantity>'");
             return;
         }
         if (!isNumeric(quantity)) {
-            System.out.println("Invalid quantity. Expected a numeric value.");
             return;
         }
 
         int qnt = Integer.parseInt(quantity);
         if (qnt <= 0) {
-            System.out.println("Invalid quantity. Quantity must be a positive number.");
+            System.out.println("ERROR: Invalid quantity. The quantity must be a positive number greater than 0.");
             return;
         }
 
@@ -155,7 +154,7 @@ public class Main {
 
     private static void handleRemoveCommand(String[] args) {
         if (args.length != 2) {
-            System.out.println("Invalid 'remove' command format. Use: 'remove <title>'.");
+            System.out.println("ERROR: Invalid 'remove' command format.\nCorrect usage: 'remove <title>'");
             return;
         }
         String title = args[1];
@@ -176,7 +175,7 @@ public class Main {
         Scanner scanner = new Scanner(System.in);
         String input = scanner.nextLine();
         if (!isNumeric(input)) {
-            System.out.println("Invalid input. Please enter a valid number.");
+            System.out.println("ERROR: Invalid input. Please enter a number from the list above.");
             return;
         }
         int choice = Integer.parseInt(input);
@@ -192,7 +191,7 @@ public class Main {
 
     private static void handleFindCommand(String[] args) {
         if (args.length < 3) {
-            System.out.println("Invalid 'find' command format. Use: 'find  <title/author/category/email> string'.");
+            System.out.println("ERROR: Invalid 'find' command format.\nCorrect usage: 'find <title/author/category/email> <search term>'");
             return;
         }
         String filter = args[1].toLowerCase();
@@ -212,7 +211,7 @@ public class Main {
                 foundBooks = library.findBookByEmail(query);
                 break;
             default:
-                System.out.println("Error you must enter the title, author, category or email of the book that you want to find.");
+                System.out.println("ERROR: Invalid search type. You must specify one of: title, author, category, or email");
                 return;
         }
         if (foundBooks.isEmpty()) {
@@ -227,7 +226,7 @@ public class Main {
 
     private static void handleBorrowCommand(String[] args) {
         if (args.length != 2) {
-            System.out.println("Error you must enter the title of the book that you want to borrow.");
+            System.out.println("ERROR: Missing book title.\nCorrect usage: 'borrow <title>'");
             return;
         }
         String title = args[1];
@@ -267,7 +266,8 @@ public class Main {
     
     private static void handleReturnCommand(String[] args) {
         if (args.length != 2) {
-            System.out.println("Invalid 'return' command format. Use: 'return <title>'.");
+            System.out.println("ERROR: Missing book title.\nCorrect usage: 'return <title>'");
+
             return;
         }
         String title = args[1];
@@ -305,7 +305,7 @@ public class Main {
     }
     private static boolean isNumeric(String str) {
         if (!str.matches("\\d+")) {
-            System.out.println("Error: '" + str + "' is not a valid numeric value. Please enter numbers only.");
+            System.out.println("ERROR: '" + str + "' is not a valid number. Please enter digits only (0-9).");
             return false;
         }
         return true;
