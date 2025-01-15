@@ -1,313 +1,375 @@
+import javax.swing.*;
+import java.awt.*;
+import java.awt.event.*;
+import java.io.File;
 import java.util.ArrayList;
-import java.util.Scanner;
 
-public class Main {
-    private static Library library = new Library();
+public class Main extends JFrame {
+    private static Library library;
+    private JTextField titleField, authorField, categoryField, emailField, quantityField;
+    private JTextArea outputArea;
+    
+    public Main() {
+        try {
+            library = new Library();
+            initializeGUI();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Failed to initialize library: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
+            System.exit(1);
+        }
+    }
+    
+    private void initializeGUI() {
+        setTitle("Library Management System");
+        setSize(800, 600);
+        setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        
+        JPanel welcomePanel = new JPanel();
+        welcomePanel.setLayout(new BoxLayout(welcomePanel, BoxLayout.Y_AXIS));
+        welcomePanel.setBackground(new Color(242, 242, 242));
+
+        JLabel welcomeLabel = new JLabel("Welcome to Our Library Management System");
+        welcomeLabel.setFont(new Font("Arial", Font.BOLD, 24));
+        welcomeLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        welcomeLabel.setForeground(new Color(86, 130, 140));  
+
+        JLabel subLabel = new JLabel("Manage your books efficiently");
+        subLabel.setFont(new Font("Arial", Font.PLAIN, 16));
+        subLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        subLabel.setForeground(welcomeLabel.getForeground());
+
+        welcomePanel.add(Box.createVerticalGlue());
+        welcomePanel.add(welcomeLabel);
+        welcomePanel.add(Box.createVerticalStrut(10));
+        welcomePanel.add(subLabel);
+        welcomePanel.add(Box.createVerticalStrut(20));
+        JButton continueButton = new JButton("Continue to Library");
+        continueButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        continueButton.setFont(new Font("Arial", Font.BOLD, 14));
+        continueButton.setForeground(welcomeLabel.getForeground());
+        welcomePanel.add(continueButton);
+        welcomePanel.add(Box.createVerticalGlue());
+        
+        JPanel inputPanel = new JPanel(new GridLayout(5, 2, 5, 5));
+        inputPanel.setBorder(BorderFactory.createEmptyBorder(20, 10, 10, 10)); 
+        JPanel buttonPanel = new JPanel(new FlowLayout());
+        
+       
+        titleField = new JTextField(20);
+        authorField = new JTextField(20);
+        categoryField = new JTextField(20);
+        emailField = new JTextField(20);
+        quantityField = new JTextField(10);
+        
+       
+        inputPanel.add(new JLabel("Title:"));
+        inputPanel.add(titleField);
+        inputPanel.add(new JLabel("Author:"));
+        inputPanel.add(authorField);
+        inputPanel.add(new JLabel("Category:"));
+        inputPanel.add(categoryField);
+        inputPanel.add(new JLabel("Email:"));
+        inputPanel.add(emailField);
+        inputPanel.add(new JLabel("Quantity:"));
+        inputPanel.add(quantityField);
+        quantityField.setText("1");
+        
+        for (Component c : inputPanel.getComponents()) {
+           c.setForeground(new Color(61, 118, 130));
+        }
+       
+        JButton addButton = new JButton("Add Book");
+        JButton removeButton = new JButton("Remove Book");
+        JButton findButton = new JButton("Find Book");
+        JButton listButton = new JButton("List All Books");
+        JButton borrowButton = new JButton("Borrow Book");
+        JButton returnButton = new JButton("Return Book");
+        JButton exitButton = new JButton("Exit");
+       
+        buttonPanel.add(addButton);
+        buttonPanel.add(removeButton);
+        buttonPanel.add(findButton);
+        buttonPanel.add(borrowButton);
+        buttonPanel.add(returnButton);
+        for (Component c : buttonPanel.getComponents()) {
+            c.setForeground(new Color(61, 118, 130));
+        }
+        
+        JPanel listButtonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+        listButtonPanel.add(listButton);
+        
+        outputArea = new JTextArea(15, 40);
+        outputArea.setEditable(false);
+        JScrollPane scrollPane = new JScrollPane(outputArea);
+        
+       
+        addButton.addActionListener(e -> handleAddBook());
+        removeButton.addActionListener(e -> handleRemoveBook());
+        findButton.addActionListener(e -> handleFindBook());
+        listButton.addActionListener(e -> handleListBooks());
+        borrowButton.addActionListener(e -> handleBorrowBook());
+        returnButton.addActionListener(e -> handleReturnBook());
+        
+       
+        CardLayout cardLayout = new CardLayout();
+        JPanel mainContainer = new JPanel(cardLayout);
+        
+        JPanel exitPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT));
+        exitPanel.add(exitButton);
+        
+        JPanel bottomPanel = new JPanel(new BorderLayout());
+        bottomPanel.add(listButtonPanel, BorderLayout.NORTH);
+        bottomPanel.add(scrollPane, BorderLayout.CENTER);
+        bottomPanel.add(exitPanel, BorderLayout.SOUTH);
+        
+        JPanel contentPanel = new JPanel(new BorderLayout(10, 10));
+        contentPanel.add(inputPanel, BorderLayout.NORTH);
+        contentPanel.add(buttonPanel, BorderLayout.CENTER);
+        contentPanel.add(bottomPanel, BorderLayout.SOUTH);
+        
+        mainContainer.add(welcomePanel, "welcome");
+        mainContainer.add(contentPanel, "main");
+        
+        setLayout(new BorderLayout());
+        add(mainContainer);
+        
+        continueButton.addActionListener(e -> cardLayout.show(mainContainer, "main"));
+        
+        exitButton.addActionListener(e -> {
+            int result = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to exit?",
+                "Exit Confirmation",
+                JOptionPane.YES_NO_OPTION
+            );
+            if (result == JOptionPane.YES_OPTION) {
+                System.exit(0);
+            }
+        });
+        
+       
+        setLocationRelativeTo(null);
+    }
 
     public static void main(String[] args) {
-        System.out.println("\n\nWelcome to the Library Management System!");
-        System.out.println("Enter 'help' to list all commands.");
-        Scanner scanner = new Scanner(System.in);
-        while (true) {
-            System.out.print("\n> ");
-            String command = scanner.nextLine().toLowerCase();
-            if (command.equalsIgnoreCase("exit") || command.equalsIgnoreCase("quit")) {
-                System.out.println("Exiting the Library Management System. Goodbye!");
-                break;
-            }
-            execute(command);
-        }
-        scanner.close();
+        SwingUtilities.invokeLater(() -> {
+            new Main().setVisible(true);
+        });
     }
 
-    private static void execute(String command) {
-        String[] args = command.trim().split(" ");
-    
-        if (args.length == 0 || args[0].isEmpty()) {
-            System.out.println("ERROR: No command entered. Please type a valid command. Use 'help' to see all available commands.");
-            return;
-        }
-    
-        String mainCommand = args[0].toLowerCase();
-    
-        switch (mainCommand) {
-            case "help":
-                displayHelp(args);
-                break;
-            case "add":
-            case "insert":
-                handleAddCommand(args);
-                break;
-            case "remove":
-            case "delete":
-                handleRemoveCommand(args);
-                break;
-            case "find":
-            case "search":
-                handleFindCommand(args);
-                break;
-            case "print":
-            case "list":
-            case "display":
-            case "printall":
-                library.printAllBooks();
-                break;
-            case "borrow":
-                handleBorrowCommand(args);
-                break;
-            case "return":
-                handleReturnCommand(args);
-                break;
-            default:
-                System.out.println("ERROR: Unknown command '" + mainCommand + "'. Use 'help' to see all available commands.");
-        }
-    }
-    
-    private static void displayHelp(String[] args) {
-        if (args.length == 1) {
-            System.out.println("Available commands:");
-            System.out.println("1. Add a book: 'add or insert <title> <author> <category> <email> <quantity>'");
-            System.out.println("2. Remove a book: 'remove or delete <title>'");
-            System.out.println("3. Find a book: 'find or search <by title/by author/by category/by email>'");
-            System.out.println("4. Print all books: 'print' or 'list' or 'display' or 'printAll'");
-            System.out.println("5. Borrow a book: 'borrow <title>'");
-            System.out.println("6. Return a book: 'return <title>'");
-            System.out.println("7. Exit the system: 'exit' or 'quit'");
-        } else {
-            System.out.println("Help details for: " + args[1]);
-            switch (args[1].toLowerCase()) {
-                case "add":
-                    System.out.println("To add a book, enter 'add <title> <author> <category> <email> <quantity>'.");
-                    break;
-                case "remove":
-                    System.out.println("To remove a book, enter 'remove <title>'.");
-                    break;
-                case "find":
-                    System.out.println("To find a book, enter 'find by <title>, <author>, <category> or <email>'.");
-                    break;
-                case "print":
-                case "list":
-                case "display":
-                case "printall":
-                    System.out.println("To print all books.");
-                    break;
-                case "borrow":
-                    System.out.println("To borrow a book, enter 'borrow <title>'.");
-                    break;
-                case "return":
-                    System.out.println("To return a book, enter 'return <title>'.");
-                    break;
-                case "exit":
-                case "quit":
-                    System.out.println("To exit the system, enter 'exit'.");
-                    break;
-                default:
-                    System.out.println("Unknown command. Type 'help' for a list of valid commands.");
-            }
-        }
-    }
-
-    private static void handleAddCommand(String[] args) {
-        String title = null;
-        String author = null;
-        String category = null;
-        String email = null;
-        String quantity = null;
-
-        if (args.length == 6) {
-
-            title = args[1];
-            author = args[2];
-            category = args[3];
-            email = args[4];
-            quantity = args[5];
-        } else if (args.length == 1 && args[0].equals("add")) {
-            Scanner scanner = new Scanner(System.in);
-            System.out.println("Enter title of the book:");
-            title = scanner.nextLine();
-            System.out.println("Enter author of the book:");
-            author = scanner.nextLine();
-            System.out.println("Enter category of the book:");
-            category = scanner.nextLine();
-            System.out.println("Enter email of the book:");
-            email = scanner.nextLine();
-            System.out.println("Enter quantity of the book:");
-            quantity = scanner.nextLine();
-        } else {
-            System.out.println("ERROR: Invalid 'add' command format.\nCorrect usage: 'add <title> <author> <category> <email> <quantity>'");
-            return;
-        }
-        if (!isNumeric(quantity)) {
-            return;
-        }
-
-        int qnt = Integer.parseInt(quantity);
-        if (qnt <= 0) {
-            System.out.println("ERROR: Invalid quantity. The quantity must be a positive number greater than 0.");
-            return;
-        }
-
-        Book book = new Book(title, author, category, email, qnt);
-        library.addBook(book);
-        System.out.println("Book added successfully: " + book.getInfo());
-    }
-
-    private static void handleRemoveCommand(String[] args) {
-        if (args.length != 2) {
-            System.out.println("ERROR: Invalid 'remove' command format.\nCorrect usage: 'remove <title>'");
-            return;
-        }
-        String title = args[1];
-        ArrayList<Book> books = library.findBookByTitle(title);
-
-        if (books == null || books.isEmpty()) {
-            System.out.println("No books found with the title: " + title);
-            return;
-        }
-
-        System.out.println("Found the following books with the title '" + title + "':");
-        for (int i = 0; i < books.size(); i++) {
-            Book book = books.get(i);
-            System.out.println((i + 1) + ". " + book.getInfo());
-        }
-
-        System.out.println("Enter the number of the book you want to remove:");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        if (!isNumeric(input)) {
-            System.out.println("ERROR: Invalid input. Please enter a number from the list above.");
-            return;
-        }
-        int choice = Integer.parseInt(input);
-
-        if (choice < 1 || choice > books.size()) {
-            System.out.println("Invalid selection. No book removed.");
-        } else {
-            Book selectedBook = books.get(choice - 1);
-            library.removeBook(selectedBook);
-            System.out.println("Book removed successfully: " + selectedBook.getInfo());
-        }
-    }
-
-    private static void handleFindCommand(String[] args) {
-        if (args.length < 3) {
-            System.out.println("ERROR: Invalid 'find' command format.\nCorrect usage: 'find <title/author/category/email> <search term>'");
-            return;
-        }
-        String filter = args[1].toLowerCase();
-        String query = args[2];
-        ArrayList<Book> foundBooks = new ArrayList<>();
-        switch (filter) {
-            case "title":
-                foundBooks = library.findBookByTitle(query);
-                break;
-            case "author":
-                foundBooks = library.findBooksByAuthor(query);
-                break;
-            case "category":
-                foundBooks = library.findBookByCategory(query);
-                break;
-            case "email":
-                foundBooks = library.findBookByEmail(query);
-                break;
-            default:
-                System.out.println("ERROR: Invalid search type. You must specify one of: title, author, category, or email");
+    private void handleAddBook() {
+        try {
+            String title = titleField.getText().trim();
+            String author = authorField.getText().trim();
+            String category = categoryField.getText().trim();
+            String email = emailField.getText().trim();
+            
+            if (title.isEmpty() || author.isEmpty() || category.isEmpty() || email.isEmpty()) {
+                JOptionPane.showMessageDialog(this,
+                    "All fields must be filled out!",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
                 return;
-        }
-        if (foundBooks.isEmpty()) {
-            System.out.println("No books found.");
-        } else {
-            System.out.println("Found books:");
-            for (Book book : foundBooks) {
-                System.out.println(book.getInfo());
             }
+            
+            int quantity;
+            try {
+                quantity = Integer.parseInt(quantityField.getText().trim());
+                if (quantity <= 0) {
+                    throw new NumberFormatException();
+                }
+            } catch (NumberFormatException ex) {
+                JOptionPane.showMessageDialog(this,
+                    "Please enter a valid positive number for quantity!",
+                    "Input Error",
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Book book = new Book(title, author, category, email, quantity);
+            library.addBook(book);
+            outputArea.setText("Book added successfully:\n" + book.getInfo());
+            clearFields();
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this,
+                "Error adding book: " + e.getMessage(),
+                "Error",
+                JOptionPane.ERROR_MESSAGE);
         }
     }
-
-    private static void handleBorrowCommand(String[] args) {
-        if (args.length != 2) {
-            System.out.println("ERROR: Missing book title.\nCorrect usage: 'borrow <title>'");
+    
+    private void handleRemoveBook() {
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a title to remove!",
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String title = args[1];
+        
         ArrayList<Book> books = library.findBookByTitle(title);
-    
-        if (books == null || books.isEmpty()) {
-            System.out.println("No books found with the title: " + title);
+        if (books.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No books found with title: " + title,
+                "Not Found",
+                JOptionPane.INFORMATION_MESSAGE);
             return;
         }
-    
-        System.out.println("Found the following books with the title '" + title + "':");
-        for (int i = 0; i < books.size(); i++) {
-            Book book = books.get(i);
-            System.out.println((i + 1) + ". " + book.getInfo());
-        }
-    
-        System.out.println("Enter the number of the book you want to borrow:");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        if (!isNumeric(input)) {
-            System.out.println("Invalid input. Please enter a valid number.");
-            return;
-        }
-        int choice = Integer.parseInt(input);
-    
-        if (choice < 1 || choice > books.size()) {
-            System.out.println("Invalid selection. No book borrowed.");
+        
+        if (books.size() > 1) {
+            Book selectedBook = (Book) JOptionPane.showInputDialog(
+                this,
+                "Select book to remove:",
+                "Remove Book",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                books.toArray(),
+                books.get(0));
+                
+            if (selectedBook != null && library.removeBook(selectedBook)) {
+                outputArea.setText("Book removed successfully:\n" + selectedBook.getInfo());
+                clearFields();
+            }
         } else {
-            Book selectedBook = books.get(choice - 1);
-            if (library.borrowBook(selectedBook)!=null) {
-                System.out.println("Book borrowed successfully: " + selectedBook.getInfo());
-            } else {
-                System.out.println("The book is not available for borrowing.");
+            Book bookToRemove = books.get(0);
+            if (library.removeBook(bookToRemove)) {
+                outputArea.setText("Book removed successfully:\n" + bookToRemove.getInfo());
+                clearFields();
             }
         }
     }
     
-    private static void handleReturnCommand(String[] args) {
-        if (args.length != 2) {
-            System.out.println("ERROR: Missing book title.\nCorrect usage: 'return <title>'");
-
+    private void handleFindBook() {
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a title to search!",
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE);
             return;
         }
-        String title = args[1];
+        
         ArrayList<Book> books = library.findBookByTitle(title);
-    
-        if (books == null || books.isEmpty()) {
-            System.out.println("No books found with the title: " + title);
-            return;
-        }
-    
-        System.out.println("Found the following books with the title '" + title + "':");
-        for (int i = 0; i < books.size(); i++) {
-            Book book = books.get(i);
-            System.out.println((i + 1) + ". " + book.getInfo());
-        }
-    
-        System.out.println("Enter the number of the book you want to return:");
-        Scanner scanner = new Scanner(System.in);
-        String input = scanner.nextLine();
-        if (!isNumeric(input)) 
-            return;
-
-        int choice = Integer.parseInt(input);
-    
-        if (choice < 1 || choice > books.size()) {
-            System.out.println("Invalid selection. No book returned.");
+        if (books.isEmpty()) {
+            outputArea.setText("No books found with title: " + title);
         } else {
-            Book selectedBook = books.get(choice - 1);
-            if (library.returnBook(selectedBook) != null) {
-                System.out.println("Book returned successfully: " + selectedBook.getInfo());
+            StringBuilder result = new StringBuilder("Found books:\n");
+            for (Book book : books) {
+                result.append(book.getInfo()).append("\n");
+            }
+            outputArea.setText(result.toString());
+        }
+    }
+    
+    private void handleListBooks() {
+        StringBuilder result = new StringBuilder("All books in library:\n");
+        if(library.Books.isEmpty()) {
+            outputArea.setText("No books in library.");
+            return;
+        }
+        for (Book book : library.Books) {
+            result.append(book.getInfo()).append("\n");
+        }
+        outputArea.setText(result.toString());
+    }
+    
+    private void handleBorrowBook() {
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a title to borrow!",
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        
+        ArrayList<Book> books = library.findBookByTitle(title);
+        if (books.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No books found with title: " + title,
+                "Not Found",
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        Book selectedBook = books.size() > 1 ?
+            (Book) JOptionPane.showInputDialog(
+                this,
+                "Select book to borrow:",
+                "Borrow Book",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                books.toArray(),
+                books.get(0)) :
+            books.get(0);
+            
+        if (selectedBook != null) {
+            Book borrowedBook = library.borrowBook(selectedBook);
+            if (borrowedBook != null) {
+                outputArea.setText("Book borrowed successfully:\n" + borrowedBook.getInfo());
+                clearFields();
             } else {
-                System.out.println("Unable to return the book. Ensure the book belongs to the library.");
+                JOptionPane.showMessageDialog(this,
+                    "The book is not available for borrowing.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             }
         }
     }
-    private static boolean isNumeric(String str) {
-        if (!str.matches("\\d+")) {
-            System.out.println("ERROR: '" + str + "' is not a valid number. Please enter digits only (0-9).");
-            return false;
+    
+    private void handleReturnBook() {
+        String title = titleField.getText().trim();
+        if (title.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "Please enter a title to return!",
+                "Input Error",
+                JOptionPane.ERROR_MESSAGE);
+            return;
         }
-        return true;
+        
+        ArrayList<Book> books = library.findBookByTitle(title);
+        if (books.isEmpty()) {
+            JOptionPane.showMessageDialog(this,
+                "No books found with title: " + title,
+                "Not Found",
+                JOptionPane.INFORMATION_MESSAGE);
+            return;
+        }
+        
+        Book selectedBook = books.size() > 1 ?
+            (Book) JOptionPane.showInputDialog(
+                this,
+                "Select book to return:",
+                "Return Book",
+                JOptionPane.QUESTION_MESSAGE,
+                null,
+                books.toArray(),
+                books.get(0)) :
+            books.get(0);
+            
+        if (selectedBook != null) {
+            Book returnedBook = library.returnBook(selectedBook);
+            if (returnedBook != null) {
+                outputArea.setText("Book returned successfully:\n" + returnedBook.getInfo());
+                clearFields();
+            } else {
+                JOptionPane.showMessageDialog(this,
+                    "Unable to return the book. Ensure the book belongs to the library.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        }
+    }
+    
+    private void clearFields() {
+        titleField.setText("");
+        authorField.setText("");
+        categoryField.setText("");
+        emailField.setText("");
+        quantityField.setText("1");
     }
 }
