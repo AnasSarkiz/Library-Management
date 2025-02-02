@@ -359,6 +359,13 @@ public class Main extends JFrame {
 
     private void handleFindBook() {
         String title = titleField.getText().trim();
+        String author = authorField.getText().trim();
+        String category = categoryField.getText().trim();
+        String email = emailField.getText().trim();
+        String company = companyField.getText().trim();
+        String duration = durationField.getText().trim();
+        boolean isBook = itemTypeComboBox.getSelectedItem().toString().contains("Book");
+        
         if (title.isEmpty()) {
             JOptionPane.showMessageDialog(this,
                 "Please enter a title to search!",
@@ -367,11 +374,53 @@ public class Main extends JFrame {
             return;
         }
         ArrayList<Item> items = library.findItemByTitle(title);
-        if (items.isEmpty()) {
-            outputArea.setText("No items found with title: " + title);
+        ArrayList<Item> filteredItems = new ArrayList<>();
+        
+        for (Item item : items) {
+            // First filter by item type
+            if (isBook && !(item instanceof Book)) continue;
+            if (!isBook && !(item instanceof CD)) continue;
+            
+            boolean matches = true;
+            
+            if (item instanceof Book) {
+                Book book = (Book) item;
+                if (!author.isEmpty() && !book.getAuthor().equals(author)) {
+                    matches = false;
+                }
+                if (!category.isEmpty() && !book.getCategory().equals(category)) {
+                    matches = false;
+                }
+                if (!email.isEmpty() && !book.getEmail().equals(email)) {
+                    matches = false;
+                }
+            } else if (item instanceof CD) {
+                CD cd = (CD) item;
+                if (!company.isEmpty() && !cd.getCompany().equals(company)) {
+                    matches = false;
+                }
+                if (!duration.isEmpty()) {
+                    try {
+                        int durationValue = Integer.parseInt(duration);
+                        if (cd.getDuration() != durationValue) {
+                            matches = false;
+                        }
+                    } catch (NumberFormatException e) {
+                        // Invalid duration format, ignore duration filter
+                    }
+                }
+            }
+            
+            if (matches) {
+                filteredItems.add(item);
+            }
+        }
+        
+        if (filteredItems.isEmpty()) {
+            outputArea.setText("No " + (isBook ? "books" : "CDs") + " found matching all criteria");
         } else {
-            StringBuilder result = new StringBuilder("Found items:\n");
-            for (Item item : items) {
+            StringBuilder result = new StringBuilder("Found " + (isBook ? "books" : "CDs") + ":\n");
+            for (Item item : filteredItems) {
                 result.append(item.getInfo()).append("\n");
             }
             outputArea.setText(result.toString());
