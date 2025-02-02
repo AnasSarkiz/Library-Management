@@ -1,8 +1,8 @@
 public class CD extends Item {
     private String company;
-    private int duration;
+    private float duration;
 
-    public CD(String title, String company, int duration, int quantity) {
+    public CD(String title, String company, float duration, int quantity) {
         super(title, quantity);
         this.company = company;
         this.duration = duration;
@@ -26,7 +26,7 @@ public class CD extends Item {
         this.company = company;
     }
 
-    public int getDuration() {
+    public float getDuration() {
         return duration;
     }
     public void setDuration(int duration) {

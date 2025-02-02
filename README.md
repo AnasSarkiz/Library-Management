@@ -1,6 +1,6 @@
 # Library Management System
 
-A comprehensive Java-based library management system that enables efficient book management, borrowing operations, and advanced search capabilities.
+A comprehensive Java-based library management system with a graphical user interface that enables efficient management of books and CDs, borrowing operations, and advanced search capabilities.
 
 ## System Requirements
 
@@ -28,12 +28,15 @@ javac *.java
 java Main
 ```
 
+The graphical user interface will launch automatically.
+
 ## Introduction
 
-This Library Management System is a robust command-line application designed for efficient library management. It offers:
+This Library Management System is a modern GUI application designed for efficient library management. It offers:
 
 ### Key Features
-- Complete book management (add, remove, update)
+- Complete item management (add, remove, update)
+- Support for both Books and CDs
 - Multi-criteria search functionality
 - Borrowing and return tracking
 - Quantity management
@@ -41,41 +44,63 @@ This Library Management System is a robust command-line application designed for
 - Data persistence
 - Input validation
 - Error handling
+- Intuitive graphical interface
 
 ### Benefits
-- Easy to use command-line interface
-- Efficient book tracking
+- User-friendly graphical interface
+- Efficient item tracking
 - Multiple search options
-- Reliable book management
+- Reliable inventory management
+- Support for different media types
 - User accountability through email tracking
 
-## Commands and Usage
+## GUI Usage Guide
 
-| Command | Format | Description | Example |
-|---------|---------|-------------|----------|
-| add/insert | `add <title> <author> <category> <email> <quantity>` | Add a new book to the library | `add "Java Programming" "John Doe" "Programming" "john@email.com" 5` |
-| remove/delete | `remove <title>` | Remove a book from the library | `remove "Java Programming"` |
-| find/search | `find by <title/author/category/email> <query>` | Search for books using different criteria | `find by author "John Doe"` |
-| print/list/display | `print` | Display all books in the library | `print` |
-| borrow | `borrow <title>` | Borrow a book from the library | `borrow "Java Programming"` |
-| return | `return <title>` | Return a book to the library | `return "Java Programming"` |
-| help | `help` | Display available commands | `help` |
-| exit/quit | `exit` | Exit the application | `exit` |
+The application provides an intuitive graphical interface with the following features:
+
+### Item Management
+- Add new Books or CDs using the input form
+- Remove items by title
+- Search items by various criteria
+- List all items in the library
+- Borrow and return items
+
+### Input Fields
+For Books:
+- Title
+- Author
+- Category
+- Email
+- Quantity
+
+For CDs:
+- Title
+- Company
+- Duration (in minutes)
+- Quantity
+
+### Operations
+- Use the dropdown to select item type (Book/CD)
+- Fill in the relevant fields
+- Click the appropriate button for the desired action (Add, Remove, Find, etc.)
+- Results are displayed in the output area
 
 ### Notes:
-- Titles with spaces should be enclosed in quotes
-- Email addresses must be valid format
+- All required fields must be filled
+- Email addresses must be in valid format
 - Quantity must be a positive integer
-- Commands are case-insensitive
+- Duration must be a positive number
 
 ## Help Guide
 
 To use the Library Management System:
 
-1. Start the application
-2. Use commands from the table above
-3. Follow the format exactly as shown
-4. Type 'help' anytime to see available commands
+1. Launch the application
+2. Select the type of item (Book/CD) from the dropdown
+3. Fill in the required fields
+4. Click the appropriate button for your desired action
+5. View results in the output area
+6. Clear fields using the reset button when needed
 
 ## System Design
 
@@ -104,18 +129,42 @@ To use the Library Management System:
 
 ### Class Diagram
 ```
-┌───────────────┐         ┌───────────────┐
-│    Library    │         │     Book      │
-├───────────────┤    1    ├───────────────┤
-│ +Books        │◆────────│ -title        │
-├───────────────┤    *    │ -author       │
-│ +addBook()    │         │ -category     │
-│ +removeBook() │         │ -email        │
-│ +findBook...()│         │ -quantity     │
-│ +borrowBook() │         ├───────────────┤
-│ +returnBook() │         │ +getters()    │
-└───────────────┘         │ +setters()    │
-                          └───────────────┘
+                     ┌───────────────┐
+                     │     Item      │
+                     ├───────────────┤
+                     │ -title        │
+                     │ -quantity     │
+                     ├───────────────┤
+                     │ +getInfo()    │
+                     │ +toFileString()│
+                     │ +getters()    │
+                     │ +setters()    │
+                     └───────┬───────┘
+                             │
+              ┌──────────────┴──────────────┐
+              │                             │
+    ┌─────────▼────────┐         ┌─────────▼────────┐
+    │      Book        │         │       CD         │
+    ├──────────────────┤         ├──────────────────┤
+    │ -author          │         │ -company         │
+    │ -category        │         │ -duration        │
+    │ -email           │         │                  │
+    ├──────────────────┤         ├──────────────────┤
+    │ +getInfo()       │         │ +getInfo()       │
+    │ +toFileString()  │         │ +toFileString()  │
+    └──────────────────┘         └──────────────────┘
+                     │
+              ┌──────▼───────┐
+              │   Library    │
+              ├──────────────┤
+              │ +items       │
+              ├──────────────┤
+              │ +addItem()   │
+              │ +removeItem()│
+              │ +findItem()  │
+              │ +borrow()    │
+              │ +return()    │
+              └──────────────┘
 ```
 
 ## Error Handling

@@ -289,10 +289,10 @@ public class Main extends JFrame {
                         JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-                int duration;
+                float duration;
                 try {
-                    duration = Integer.parseInt(durationStr);
-                    if(duration <= 0){
+                    duration = Float.parseFloat(durationStr);
+                    if(duration < 0){
                         throw new NumberFormatException();
                     }
                 } catch (NumberFormatException ex) {
@@ -401,7 +401,7 @@ public class Main extends JFrame {
                 }
                 if (!duration.isEmpty()) {
                     try {
-                        int durationValue = Integer.parseInt(duration);
+                        float durationValue = Float.parseFloat(duration);
                         if (cd.getDuration() != durationValue) {
                             matches = false;
                         }

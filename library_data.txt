@@ -1,3 +1,4 @@
 BOOK,anas,a,a,a,2
-CD,anas,a,2,2
-CD,anas,a,1,1
+CD,anas,a,2.0,2
+CD,anas,a,1.0,1
+CD,CD1,anas,1.2,2
