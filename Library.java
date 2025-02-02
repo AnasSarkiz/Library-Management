@@ -1,102 +1,97 @@
+import java.io.*;
 import java.util.ArrayList;
 
 public class Library {
-    public ArrayList<Book> Books;
+    public ArrayList<Item> items;
 
     public Library() {
-        Books = new ArrayList<Book>();
+        items = new ArrayList<>();
     }
 
-    public void addBook(Book book) {
-        for (Book matchedBook : Books) {
-            if (matchedBook.getTitle().equals(book.getTitle())&&matchedBook.getAuthor().equals(book.getAuthor())&&matchedBook.getCategory().equals(book.getCategory())&&matchedBook.getEmail().equals(book.getEmail())) {
-                matchedBook.setQuantity(matchedBook.getQuantity() + book.getQuantity());
-                System.out.println("Book '" + book.getTitle() + "' quantity updated. New quantity: " + matchedBook.getQuantity());
+    public void addItem(Item item) {
+        for (Item matchedItem : items) {
+            if (matchedItem.equals(item)) {
+                matchedItem.setQuantity(matchedItem.getQuantity() + item.getQuantity());
+                System.out.println("Item '" + item.getTitle() + "' quantity updated. New quantity: " + matchedItem.getQuantity());
                 return;
             }
         }
-        Books.add(book);
-        System.out.println("Book '" + book.getTitle() + "' added to the library.");
+        items.add(item);
+        System.out.println("Item '" + item.getTitle() + "' added to the library.");
     }
 
-    public boolean removeBook(Book book) {
-        for (Book matchedBook : Books) {
-            if (matchedBook.equals(book)) {
-                Books.remove(matchedBook);
-                System.out.println("Book '" + book.getTitle() + "' removed.");
+    public boolean removeItem(Item item) {
+        for (Item matchedItem : items) {
+            if (matchedItem.equals(item)) {
+                items.remove(matchedItem);
+                System.out.println("Item '" + item.getTitle() + "' removed.");
                 return true;
             }
         }
         return false;
     }
-    public ArrayList<Book> findBookByTitle(String title) {
-        ArrayList<Book> matchingBooks = new ArrayList<>();
-        for (Book matchedBook : Books) {
-            if (matchedBook.getTitle().equals(title)) {
-                matchingBooks.add(matchedBook);
+
+    public ArrayList<Item> findItemByTitle(String title) {
+        ArrayList<Item> matchingItems = new ArrayList<>();
+        for (Item matchedItem : items) {
+            if (matchedItem.getTitle().equals(title)) {
+                matchingItems.add(matchedItem);
             }
         }
-        return matchingBooks;
-    }
-    public ArrayList<Book> findBooksByAuthor(String author) {
-        ArrayList<Book> matchingBooks = new ArrayList<>();
-        for (Book matchedBook : Books) {
-            if (matchedBook.getAuthor().equals(author)) {
-                matchingBooks.add(matchedBook);
-            }
-        }
-        return matchingBooks;
-    }
-    public ArrayList<Book> findBookByCategory(String category) {
-        ArrayList<Book> matchingBooks = new ArrayList<>();
-        for (Book matchedBook : Books) {
-            if (matchedBook.getCategory().equals(category)) {
-                matchingBooks.add(matchedBook);
-            }
-        }
-        return matchingBooks;
+        return matchingItems;
     }
 
-    public ArrayList<Book> findBookByEmail(String email) {
-        ArrayList<Book> matchingBooks = new ArrayList<>();
-        for (Book matchedBook : Books) {
-            if (matchedBook.getEmail().equals(email)) {
-                matchingBooks.add(matchedBook);
-            }
-        }
-        return matchingBooks;
-    }
-
-    public void printAllBooks() {
-        for (Book Book : Books) {
-            System.out.println(Book.getInfo());
-        }
-    }
-    public Book borrowBook(Book book) {
-        for (Book matchedBook : Books) {
-            if (matchedBook.equals(book)) {
-                if (matchedBook.getQuantity() <= 0) {
-                    System.out.println("Book '" + matchedBook.getTitle() + "' is out of stock.");
+    public Item borrowItem(Item item) {
+        for (Item matchedItem : items) {
+            if (matchedItem.equals(item)) {
+                if (matchedItem.getQuantity() <= 0) {
+                    System.out.println("Item '" + matchedItem.getTitle() + "' is out of stock.");
                     return null;
                 }
-                matchedBook.setQuantity(matchedBook.getQuantity() - 1);
-                System.out.println("Book '" + matchedBook.getTitle() + "' borrowed.");
-                return matchedBook;
+                matchedItem.setQuantity(matchedItem.getQuantity() - 1);
+                System.out.println("Item '" + matchedItem.getTitle() + "' borrowed.");
+                return matchedItem;
             }
         }
-        System.out.println("Book '" + book.getTitle() + "' not found.");
+        System.out.println("Item '" + item.getTitle() + "' not found.");
         return null;
     }
 
-    public Book returnBook(Book book) {
-        for (Book matchedBook : Books) {
-            if (matchedBook.equals(book)) {
-                matchedBook.setQuantity(matchedBook.getQuantity() + 1);
-                System.out.println("Book '" + matchedBook.getTitle() + "' returned.");
-                return matchedBook;
+    public Item returnItem(Item item) {
+        for (Item matchedItem : items) {
+            if (matchedItem.equals(item)) {
+                matchedItem.setQuantity(matchedItem.getQuantity() + 1);
+                System.out.println("Item '" + matchedItem.getTitle() + "' returned.");
+                return matchedItem;
             }
         }
-        System.out.println("Book '" + book.getTitle() + "' not found.");
+        System.out.println("Item '" + item.getTitle() + "' not found.");
         return null;
+    }
+
+    public void loadFromFile(String filename) throws IOException {
+        try (BufferedReader reader = new BufferedReader(new FileReader(filename))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] parts = line.split(",");
+                if (parts[0].equals("BOOK")) {
+                    items.add(new Book(parts[1], parts[2], parts[3], parts[4], Integer.parseInt(parts[5])));
+                } else if (parts[0].equals("CD")) {
+                    items.add(new CD(parts[1], parts[2], Integer.parseInt(parts[3]), Integer.parseInt(parts[4])));
+                }
+            }
+        }
+    }
+
+    public void saveToFile(String filename) throws IOException {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filename))) {
+            for (Item item : items) {
+                if(item instanceof Book)
+                    writer.write(((Book)item).toFileString());
+                else if(item instanceof CD)
+                    writer.write(((CD)item).toFileString());
+                writer.newLine();
+            }
+        }
     }
 }
